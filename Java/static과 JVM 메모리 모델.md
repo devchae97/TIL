@@ -1,0 +1,259 @@
+
+
+# static과 JVM 메모리 모델
+
+<br/>
+
+### static과 메모리의 관계
+
+- static (정적) 키워드의 사용 : 어떠한 값이 메모리에 한번 할당되어 프로그램 종료 시 까지 그 메모리에 값이 유지
+  - 공통적으로 사용해야 할 메서드가 있는 경우 static 메서드로 만들어 불필요한 코드의 수를 줄일 수 있다
+
+- 객체생성 (new) 없이 메인 클래스가 실행되는 이유
+
+메인 클래스가 실행되는 방식 : 
+
+1. JVM이 실행할 클래스를 찾는다
+
+2. static 키워드가 붙어있는 멤버들을 정해진 메모리 (static-zone) 위치에 한번 자동으로 로딩
+
+   - static 멤버들은 클래스를 사용하는 시점에서 딱 한번 메모리에 로딩
+
+   - main() 메서드가 static이기 때문에 메모리에 자동으로 로딩
+
+3. JVM이 static-zone 에서 main() 메서드를 호출
+
+4. 호출된 메서드를 Call Stack Frame Area(Stack Area)에 push(기계어코드) 한 뒤 동작 시작
+
+:bulb: stack에 아무것도 없으면 프로그램이 종료
+
+```java
+public class StaticTest {
+    public static void main(String[] args){
+        int a = 10;
+        int b = 20;
+        int sum = StaticTest.hap(a,b); // StaticTest. 은 생략가능
+        System.out.println("sum = " + sum); // sum = 30
+    }
+    public static int hap(int a, int b){
+        int v = a + b;
+        return v;
+    }
+}
+```
+
+![image-20230417150046077](D:\GIT\TIL\img\image-20230417150046077.png)
+
+:bulb: Method Area : 메서드의 기계어 코드가 할당되는 메모리 공간으로 static 멤버들이 할당되는 메모리 공간이기도 하다
+
+:bulb: Call Stack Frame Area (Stack Area) : 메서드가 호출되면 기계어코드가 push되고 실행되는 메모리공간으로, 현재 프로그램이 실행되고 있는 상태를 파악할 수 있다. LIFO (Last-In-First-Out) 구조, v의 값을 return 해주며 hap()는 종료되고, stack area에서 사라짐
+
+:bulb: PC : 현재 수행중인 프로그램 위치, main 수행 중, hap을 call하면 PC는 hap() 으로 옮겨가고, v를 리턴받아 다시 PC는 main()
+
+<br/>
+
+### static과 non static 멤버들의 접근방법
+
+객체를 생성해 메모리에 로딩
+
+```java
+public class NonStaticTest {
+    public static void main(String[] args) {
+        int a = 10;
+        int b = 20;
+        NonStaticTest st = new NonStaticTest(); // 객체 생성
+        int sum = st.hap(a,b); // 객체생성 없이 사용 시 에러
+        System.out.println("sum = " + sum); // sum = 30
+    }
+    public int hap(int a, int b){ // static이 없는 Non-static method
+        int v = a + b;
+        return v;
+    }
+}
+```
+
+![image-20230417153254364](D:\GIT\TIL\img\image-20230417153254364.png)
+
+:bulb: Heap Area : 객체가 생성되는 메모리공간
+
+<br/>
+
+두 개의 클래스에서 static 접근
+
+1. static 멤버접근 방법 : 클래스이름.호출메서드
+
+```java
+import fc.java.model.MyUtil;
+public class StaticAccess{
+    public static void main(String[] args){
+        int a = 10;
+        int b = 20;
+        int sum = MyUtil.hap(a,b); // 클래스이름.호출메서드
+        // static 멤버는 클래스를 사용하는 시점에서 자동으로 static-zon에 로딩, 객체를 생성할 필요가 없음
+        System.out.println(sum); // 30
+    }
+}
+```
+
+```java
+public clss MyUtil{
+    public static int hap(int a, int b){ 
+        // static이 붙으면 클래스메서드, static이 없으면 객체를 생성해야 하는 인스턴스 메서드
+        int v = a + b;
+        return v;
+    }
+}
+```
+
+2. non-static 멤버접근 방법 : 객체생성
+
+```java
+import fc.java.model.MyUtil1;
+public class NonStaticAccess {
+    public static void main(String[] args) {
+        int a = 10;
+        int b = 20;
+        MyUtil1 my1 = new MyUtil1(); // 객체생성
+        int sum = my1.hap(a,b);
+        System.out.println(sum);
+    }
+}
+```
+
+```java
+public class MyUtil1 {
+    public int hap(int a, int b){ // Non-static, 인스턴스 메서드
+        int v = a + b;
+        return v;
+    }
+}
+```
+
+<br/>
+
+### JVM의 메모리 모델 (Runtime Data Area)
+
+- Method Area : 메서드의 바이트코드가 할당되는 공간으로 static zone과 non static zone으로 나뉨
+  - static zone : static 멤버들이 할당
+  - non static zone
+- Heap Area Generation : 객체가 생성되는 메모리 공간 (new 연산자) 으로, GC (Garbage Collector) 에 의해 메모리가 수집
+- Stack Area (Call Stack Frame Area) : 메서드가 호출되면 메서드의 코드를 할당받고 (Native Method Area) 메서드가 실행되는 메모리 공간 (지역변수, 매개변수들이 만들어지는 공간) LIFO구조
+
+:bulb: PC (Program Counter) 에 의해 현재 실행중인 프로그램의 위치가 관리
+
+- Runtime Constant Pool (Literal Pool, 문자열 상수) : 상수 값 할당이 되는 메모리 공간. 문자열 중 문자열 상수가 할당
+
+<br/>
+
+### 객체 생성과 static과의 관계
+
+어떤 클래스의 모든 멤버가 static 멤버인 경우
+
+:bulb: 자바 API에서는 private 생성자를 가지고 있는 클래스가 있다 ex > System, Math 등 (생성자는 반드시 public인 건 아님)
+
+```java
+public class AllStatic {
+    private AllStatic() { // private으로 접근 제어
+        
+    }
+    public static int hap(int a, int b){
+        int v = a + b;
+        return v;
+    }
+    public static int max(int a, int b){
+        return a>b ? a : b;
+    }
+    public static int min(int a, int b){
+        return a<b ? a : b;
+    }
+}
+```
+
+```java
+import fc.java.model.AllStatic;
+
+public class AllStaticTest {
+    public static void main(String[] args) {
+        
+        // 1번
+        // AllStatic as = new AllStatic();
+        // System.out.println(as.hap(10,20)); // 30
+        // System.out.println(as.max(10,20)); // 20
+	    // System.out.println(as.min(10,20)); // 10
+        
+        // 2번
+        System.out.println(AllStatic.hap(10,20)); // 30
+        System.out.println(AllStatic.max(10,20)); // 20
+        System.out.println(AllStatic.min(10,20)); // 10
+        
+        // System sys = new System(); // 에러, System() has private access in 'java.lang.System'
+        // Math m = new Math(); // 에러, Math() has private access in 'java.lang.Math'
+        System.out.println(Math.max(10,20)); // 20
+        System.out.println(Math.min(10,20)); // 10
+    }
+}
+
+// 1번보단 2번 방식이 더 바람직하므로, AllStatic의 기본생성자를 private으로 설정해 접근 제어해 객체 생성을 막을 수 있다.
+// System, Math 예시로 확인 가능
+```
+
+<br/>
+
+### class, object, instance 구분하기 (+정리파트)
+
+- class : 객체를 모델링하는 도구, 새로운 자료형
+
+- object (객체) : 클래스를 통해 선언되는 변수 (Student st;만 기재 시 st는 객체변수지만, 변수가 실체를 가리키지 않는 상태)
+
+- instance (실체) : 객체 생성으로 Heap 메모리에 만들어진 객체를 인스턴스, st = new Student(); 로 가리키면 st는 인스턴스 변수
+
+  ```java
+  import fc.java.model.Student;
+  public class ClassObjectInstance {
+      public static void main(String[] args) {
+          Student st1; // st1 : object
+          Student st2; // st2 : object
+          Student st3; // st3 : object
+  
+          st1 = new Student("신짱구", "컴공", 27); // st1 : instance
+          st2 = new Student("신짱아", "전기", 20); // st2 : instance
+          st3 = new Student("신형만", "건축", 45); // st3 : instance
+      }
+  }
+  ```
+
+<br/>
+
+---
+
+Quiz.
+
+1. 클래스를 사용하는 시점에서 딱 한번 메모리에 로딩하기 위해서 사용하는 키워드는 무엇인지 쓰시오
+
+   → static
+
+2. 다음은 JVM에서 사용하는 메모리 중 어떤 메모리를 설명하고 있는지 쓰시오
+
+   1. 메서드가 호출되면 호출된 기계어코드가 push되고 실행되는 메모리공간
+   2. 현재 프로그램이 실행되고 있는 상태를 파악가능
+   3. LIFO 구조
+
+   → Call Stack Frame Area
+
+3. 객체생성을 막으려면 어떻게하면 되는지 쓰시오
+
+   → 생성자를 private으로
+
+4. 객체 생성에 의해 메모리 (Heap Memeory) 에 만들어진 객체를 무엇이라고 하는지 쓰시오
+
+   → instance
+
+5. JVM이 사용하는 메모리 4가지 모델을 쓰시오
+
+   → Method Area, Stack Area, Heap Area, Literal POOL
+
+<br/>
+
+> Reference
+>
+> Fastcampus : Signature Backend
