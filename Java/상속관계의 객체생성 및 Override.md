@@ -1,0 +1,269 @@
+# 상속관계의 객체생성 및 Override
+
+데이터의 상태정보의 초점을 맞춰 DTO, VO 클래스 위주로 데이터를 다뤘다면, 클래스의 행위(동작) 정보를 초점에 맞춰 클래스와 클래스를 설계(상속)하는 방법의 이해
+
+<br/>
+
+동작 측면의 상속 (수평적 구조 설계)
+
+```java
+public class Dog{
+    public void eat(){
+        System.out.println("개처럼 먹다.");
+    }
+}
+```
+
+```java
+public class Cat{
+    public void eat(){
+        System.out.println("고양이처럼 먹다.");
+    }
+    public void night(){
+        System.out.println("밤에 눈에서 빛이 난다.");
+    }
+}
+```
+
+```java
+import fc.java.model.*;
+public class DogCatTest {
+    public static void main(String[] args) {
+        Dog d = new Dog();
+        d.eat(); // 개처럼 먹다.
+
+        Cat c = new Cat();
+        c.eat(); // 고양이처럼 먹다.
+        c.night(); // 밤에 눈에서 빛이 난다.
+    }
+}
+// 수평적 설계에서 eat() 두 메서드의 동작은 전혀 문제가 없으나 코드의 중복이 발생
+```
+
+동작 측면의 상속 (수직적 구조 설계) : 중복 코드 최소화 가능
+
+```java
+public class Animal { // 부모클래스
+    public void eat(){
+        System.out.println("동물처럼 먹다."); // 구체적이 아닌 추상적, 아래에 추가
+    }
+}
+```
+
+```java
+public class Dog extends Animal{ // 자식클래스
+	// eat 메서드의 중복 제거
+}
+```
+
+```java
+public class Cat extends Animal{ // 자식클래스
+    // eat 메서드의 중복 제거
+    public void night(){
+        System.out.println("밤에 눈에서 빛이 난다.");
+    }
+}
+```
+
+```java
+import fc.java.model.*;
+public class DogCatTest {
+    public static void main(String[] args) {
+        Dog d = new Dog();
+        d.eat(); // 동물처럼 먹다.
+
+        Cat c = new Cat();
+        c.eat(); // 동물처럼 먹다.
+        c.night(); // 밤에 눈에서 빛이 난다.
+    }
+}
+```
+
+:bulb: 동작 측면에서 상속 구조를 왜 사용해야 할까?
+
+java 소스코드와 class 파일을 전부 건네주면 c.eat(), c.night() 등 내부 구조 파악 및 사용하는 데 문제가 없으나 보통 class 파일만 전달.
+
+(내부 동작코드 전부는 공개 불가) class 파일만 받은 사용자 입장에서는 Cat 내부의 어떤 동작을 사용할 수 있는지 알 수 가 없다.
+
+하여 실제 동작하는 클래스는 자식클래스로 코드를 숨기고, 인터페이스 역할을 하는 부모클래스를 별도로 설계해 
+
+사용자 입장에서 코드를 전부 보지 않더라도 인터페이스를 통해 동작들의 사용 방법을 알 수 있도록 설계 배포하는 방식이 바람직한 방법
+
+<br/>
+
+- Upcasting(업캐스팅) : 부모가 자식을 가리키는 객체 생성 방법
+
+```java
+Dog d = new Dog();
+d.eat();
+// 하위 클래스의 동작을 알 수 없을때(어떤 메서드가 가능한지 모르는 상태)는 d.eat 형태의 사용이 어렵다.
+// 구동은 가능하나, 추천하지 않는 형태
+```
+
+```java
+Animal x = new Dog(); // Upcasting
+x.eat();
+
+Animal x = new Cat();
+x.eat();
+// 하위 클래스의 동작을 알 수 없을때도 부모 클래스(인터페이스용 설계)로 사용가능
+// 추천하는 형태
+// 더 큰 개념(부모)에 작은 개념(자식)의 할당은 자동
+```
+
+<br/>
+
+```java
+import fc.java.model.*;
+public class DogCatUpcastingTest {
+    public static void main(String[] args) {
+        // Dog 객체를 사용
+        // Dog d = new Dog();
+        // d.eat(); // 사용하는데 한계 ex > 직접 설계하지 않은 class 파일만 존재할 경우
+
+        // Upcasting : 부모가 자식을 가리킨다
+        Animal ani = new Dog();
+        ani.eat(); // 동물처럼 먹다.
+
+        ani = new Cat();
+        ani.eat(); // 동물처럼 먹다.
+    }
+}
+```
+
+<br/>
+
+### 상속 체이닝과 super
+
+- 상속 체이닝 : 맨 위 부모클래스부터 객체가 생성되어 자식까지 연결되는 구조 (자식 클래스보다 부모 클래스가 메모리 상 먼저 생성), ex > Object(최상위 클래스) - Animal - Dog
+
+```java
+public class Animal extends Object{
+    public Animal(){
+        super(); // new Object()
+    }
+}
+```
+
+```java
+public class Dog extends Animal{
+    public Dog(){
+        super(); // new Animal()
+    }
+}
+```
+
+```java
+public class Chihuahua extends Dog{
+    public Chihuahua(){
+        super(); // new Dog()
+    }
+}
+// Chihuahua c = new Chihuahua; 시 가장 먼저 Animal 이후 Dog 이후 Chihuahua가 메모리에 생성
+```
+
+- super() : 상위 클래스의 생성자를 호출하는 메서드, 생성자 메서드 가장 첫 문장에 사용해야 하며, 상위 클래스의 기본 생성자를 호출하는 super() 는 생략되어있다
+
+```java
+// super()의 위치
+public class Dog extends Animal {
+    public Dog(){
+        // int a = 1; // 수행문이 먼저 오는 경우
+        // super(); // must be first statement in constructor body 에러
+        // 부모 객체가 먼저 생성 후 자식 객체가 생성되어야 하기에, super()으로 부모 객체 생성 후 수행문 순서
+
+        super(); // new Animal(), 반드시 첫 문장에 사용
+        int a = 10;
+    }
+}
+```
+
+<br/>
+
+### 재정의(Override)
+
+- 재정의(Override) : 상속관계에서 하위클래스가 상위클래스의 동작을 재정의 하는 행위(기능추가, 변경)
+
+```java
+// 부모클래스
+public class Animal{
+    public void eat(){
+        System.out.println("동물처럼 먹다."); // 구체적이 아닌 추상적
+    }
+}
+```
+
+```java
+// 자식클래스
+public class Dog extends Animal {
+    // 재정의 Override
+    public void eat(){
+        System.out.println("개처럼 먹다."); // 구체적
+    }
+}
+```
+
+```java
+// 자식클래스
+public class Cat extends Animal{
+    // 재정의 Override
+    public void eat(){
+        System.out.println("고양이처럼 먹다."); // 구체적
+    }
+}
+```
+
+```java
+// Main
+import fc.java.model.*;
+public class OverrideTest {
+    public static void main(String[] args) {
+        // Upcasting
+        Animal ani = new Dog();
+        ani.eat(); // Override 전 : 동물처럼 먹다. -> Override 후 : 개처럼 먹다.
+
+        ani = new Cat();
+        ani.eat(); // Override 전 : 동물처럼 먹다. -> Override 후 : 고양이처럼 먹다.
+    }
+}
+```
+
+Animal 타입을 가진 ani는  Animal에만 접근이 가능하고 Dog와 Cat에는 접근이 불가하나, Override된 메서드가 있을 시 ani.eat()을 실행 시키면 하위 클래스의 Override된 메서드가 실행된다. (자바에서는 동적 바인딩을 통해 오버라이딩 된 메서드가 항상 실행되도록 보장)
+
+<br/>
+
+동적 바인딩 : 실행시점에서 사용될 메서드가 결정되는 바인딩
+
+:bulb: 바인딩 : 각종 값들이 확정되어 더 이상 변경할 수 없는 구속(bind)상태가 되는 것 (프로그램 구성 요소의 성격을 결정해주는 것)
+
+<br/>
+
+---
+
+Quiz.
+
+1. 상속관계에 있는 클래스를 객체생성 할 때 하위클래스에서 상위클래스의 객체를 생성 할 때 사용하는 메서드를 쓰시오
+
+   → super()
+
+2. Dog 클래스와 Animal 클래스가 상속관계일 때 Animal x = new Dog(); 처럼 객체를 생성하는 방법을 무엇이라고 하는지 쓰시오
+
+   → Upcasting
+
+3. 상속관계에서 객체가 생성될 때 맨 위 부모클래스부터 객체가 생성되어 자식까지 연결되는 구조를 무엇이라고 하는지 쓰시오
+
+   → 상속체이닝
+
+4. 실행시점에서 사용될 메서드가 결정되는 바인딩을 무엇이라고 하는지 쓰시오
+
+   → 동적 바인딩
+
+5. 상속관계에서 하위클래스가 상위클래스의 동작을 변경이나 추가하는 것을 무엇이라고 하는지 쓰시오
+
+   → Override (재정의)
+
+<br/>
+
+> Reference
+>
+> Fastcampus : Backend Signature
