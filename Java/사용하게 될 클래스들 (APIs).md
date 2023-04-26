@@ -1,0 +1,217 @@
+# 사용하게 될 클래스들 (APIs)
+
+<br/>
+
+### 직접 만들어 사용하는 class들
+
+예시와 같이 API를 만들어 사용이 가능
+
+ex > 자바로 배열에 저장된 수 중에서 최대값, 최소값을 구하는 클래스를 만들기
+
+```java
+public class MinMaxFinder {
+    private MinMaxFinder(){ // 객체생성 불가토록 제어
+
+    }
+
+    public static int findMin(int[] arr){ // 배열 arr을 받아 최소값을 반환
+        int min = arr[0]; // 초기값
+        for(int i = 1; i<arr.length; i++){
+            if(arr[i]<min){
+                min = arr[i];
+            }
+        }
+        return min;
+    }
+
+    public static int findMax(int[] arr){ // 배열 arr을 받아 최대값을 반환
+        int max = arr[0]; // 초기값
+        for(int i = 1; i<arr.length; i++){
+            if(arr[i]>max){
+                max = arr[i];
+            }
+        }
+        return max;
+    }
+}
+```
+
+```java
+import fc.java.model2.MinMaxFinder;
+public class MinMaxFinderTest {
+    public static void main(String[] args) {
+        int[] arr = {5,3,9,1,7};
+        int min = MinMaxFinder.findMin(arr);
+        int max = MinMaxFinder.findMax(arr);
+
+        System.out.println("min = " + min); // min = 1
+        System.out.println("max = " + max); // max = 9
+    }
+}
+```
+
+<br/>
+
+### Java에서 제공해 주는 class들
+
+예시와 같이 별도 생성없이 Java 기존의 클래스를 활용 가능
+
+```java
+// Radom 클래스
+Random ran = new Random();
+ran.nextInt(45); // 0 이상 45 미만의 난수를 반환
+int num = ran.nextInt(45) + 1; // 1부터 45 사이의 난수를 반환
+```
+
+```java
+import java.util.Random;
+public class RandomAPI {
+    public static void main(String[] args) {
+        Random ran = new Random();
+        int[] arr = new int[6];
+        int i = 0; // 저장위치
+        while (i < 6){
+            int num = ran.nextInt(45)+1; // 1 ~ 45
+            boolean isDuplicate = false;
+            for(int j = 0; j<i; j++){
+                if(arr[j]==num){
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            if(!isDuplicate){
+                arr[i++] = num;
+            }
+        }
+
+        for(int num : arr){
+            System.out.print(num + " ");
+        }
+    }
+}
+```
+
+<br/>
+
+### 다운 받아서 사용하는 class들
+
+Java API를 다운받아 사용하는 방법
+
+> 1. https://mvnrepository.com 접속
+> 2. 필요로 하는 API 검색 및 선택
+> 3. API 버전 선택
+> 4. jar 파일 다운
+>
+> :bulb: maven으로 관리하는 프로젝트일 경우 pom.xml에 dependency 주입, Gradle일 경우 build.gradle에 주입하는 것으로 파일 다운 대체 가능
+
+Gson : 자바 객체를 JSON 형식으로 변환하거나, JSON데이터를 자바 객체로 변환하는 API
+
+:bulb: JSON : "JavaScript Object Notation", 경량 데이터 교환 형식으로 플랫폼이나 언어에 상관 없이 데이터를 교환할수 있도록 설계
+
+```json
+// Json은 키-값 쌍(key-value pair)로 이루어진 데이터 객체를 표현
+{"name":"John", "age":30}
+```
+
+```java
+public class Person {
+    private String name;
+    private int age;
+
+    public Person(){
+
+    }
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                '}';
+    }
+}
+```
+
+```java
+import com.google.gson.Gson;
+import fc.java.model2.Person;
+public class GsonToAPI {
+    public static void main(String[] args) {
+        Person person = new Person("John", 30);
+        Gson gson = new Gson();
+        String json = gson.toJson(person); // 객체를 JSON형식으로 변환하는 메서드
+        System.out.println(json); // {"name":"John","age":30}
+    }
+}
+```
+
+```java
+import com.google.gson.Gson;
+import fc.java.model2.Person;
+public class GsonFromAPI {
+    public static void main(String[] args) {
+        String json = "{\"name\":\"John\",\"age\":30}";
+        Gson gson = new Gson();
+        Person p = gson.fromJson(json, Person.class); // JSON 형식을 객체로 변환하는 메서드
+        System.out.println(p.getName()); // John
+        System.out.println(p.getAge()); // 30
+        System.out.println(p.toString()); // Person{name='John', age=30}
+    }
+}
+```
+
+:bulb: Gson.jar 파일 import 하는 방법 : File > Project Structures > Libraries > (Gson.jar 파일을 다운받은 경로를 설정) > External Libraries
+
+<br/>
+
+---
+
+Quiz.
+
+1. Random 클래스를 이용하여 난수를 1~10까지 발생시키는 코드를 쓰시오
+
+   → random.nextInt(45);
+
+2. 프로그래밍 언어나 플랫폼에 상관없이 데이터를 교환할 수 있도록 설계된 데이터 형식을 무엇이라고 하는지 쓰시오
+
+   → JSON
+
+3. 이름이 홍길동이고 나이가 30인 데이터를 JSON 형식으로 쓰시오
+
+   → {"name":"John","age":30}
+
+4. JSON 형식의 문자열을 자바 객체로 변환해주는 Gson API의 메서드를 쓰시오
+
+   → fromJson();
+
+5. 객체를 JSON 형식으로 변환해주는ㄴ Gson API의 메서드를 쓰시오
+
+   → toJson();
+
+<br/>
+
+> Reference
+>
+> Fastcampus : Signature Backend
