@@ -1,0 +1,399 @@
+# API 만들기 (ArrayList)
+
+배열 사용 없이 배열처럼 동작하는 클래스(API)를 만들며 API의 사용 의미 파악하기
+
+- 배열처럼 동작하는 API 만들기 (정수형)
+
+```java
+public class IntArrayBasic {
+    public static void main(String[] args) {
+        int[] num = new int[5]; // 1. 배열생성동작 : 고정길이가 단점
+        num[0] = 1; // 2. 배열저장동작 : 입력, 추가
+        num[1] = 2;
+        num[2] = 3;
+        num[3] = 4;
+        num[4] = 5;
+
+        for(int i = 0; i<num.length; i++){ // 3. 길이를 구하는 동작 (nums.length)
+            int data = num[i]; // 4. 데이터를 가져오는 동작
+            System.out.print(data); // 12345
+        }
+        
+        for(int data:num){ // 향상된 for문으로 표현 (foreach)
+            System.out.print(data); // 12345
+        }
+    }
+}
+```
+
+배열을 사용 시 생성, 저장, 길이 구하기, 데이터 가져오기 등의 동작으로 구분이 가능
+
+이를 직접 배열을 사용하지 않고 동작을 API로 만들어 사용하기
+
+```java
+// 배열처럼 동작하는 API
+import java.util.Arrays;
+public class IntArray {
+    private final int DEFAULT_CAPACITY = 5; // 배열의 초기용량, 수정불가(상수)
+    private int[] elements; // 정수 배열
+    private int size = 0; // 원소가 저장 되어있는 개수
+
+    // 1. 배열생성동작
+    public IntArray(){
+        elements = new int[DEFAULT_CAPACITY]; // 길이 5짜리 배열 생성
+    }
+
+    // 2. 배열저장동작
+    public void add(int element){
+        if(size==elements.length){ // 배열이 꽉 찼다면 (원소가 저장된 개수와 배열의 길이가 같다면)
+            ensureCapacity(); // 용량을 두배로 늘리기
+        }
+        elements[size++] = element; // element를 배열에 넣고 size를 ++
+    }
+
+    // 3. 원소의 개수를 넘겨주는 동작
+    public int size(){
+        return size;
+    }
+    
+    // 4. 가져오는 동작
+    public int get(int index){
+        // 이 위치에 if문을 통한 index의 유효성 검사도 가능 (0 ~ size)
+        return elements[index];
+    }
+
+    private void ensureCapacity() { // 용량을 두배로 늘리기
+        int newCapacity = elements.length*2;
+        elements = Arrays.copyOf(elements, newCapacity);
+        // Arrays.copyOf(원본배열, 복사하고 싶은 요소들의 길이) : 배열의 원하는 길이만큼 새로운 배열로 복사하는 메서드
+    }
+}
+```
+
+```java
+// 배열을 직접 사용하지 않고 API를 사용해 배열을 동작시키기
+import fc.java.model2.IntArray;
+public class MyIntArrayTest {
+    public static void main(String[] args) {
+        // 정수 5개를 배열에 저정하고 출력
+        IntArray list = new IntArray(); // 5 크기의 정수형 배열 생성
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(4);
+        list.add(5);
+        list.add(6); // ensureCapacity가 없다면 ArrayIndexOutOfBoundsException 예외발생
+
+        System.out.println(list.size()); // 6
+
+        for(int i = 0; i<list.size(); i++){
+            System.out.print(list.get(i) + " "); // 1 2 3 4 5 6
+        }
+    }
+}
+```
+
+<br/>
+
+- 배열처럼 동작하는 API 만들기 (사용자 정의 자료형 Book)
+
+```java
+// 잘 설계된 VO, DTO 객체
+public class Book {
+    // 멤버변수, 상태정보, 속성(property)
+    private String title;
+    private int price;
+    private String company;
+    private String author;
+
+    public Book() { // default 생성자
+    }
+    // 생성자 메서드의 Overloading
+    public Book(String title, int price, String company, String author) {
+        this.title = title;
+        this.price = price;
+        this.company = company;
+        this.author = author;
+    }
+
+    // getter, setter
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    // Object의 toString을 Override
+    @Override
+    public String toString() {
+        return "Book{" +
+                "title='" + title + '\'' +
+                ", price=" + price +
+                ", company='" + company + '\'' +
+                ", author='" + author + '\'' +
+                '}';
+    }
+}
+```
+
+```java
+// API
+import java.util.Arrays;
+public class BookArray {
+    private final int DEFAULT_CAPACITY = 5;
+    private Book[] elements; // int[] -> Book[]
+    private int size = 0;
+
+    public BookArray(){
+        elements = new Book[DEFAULT_CAPACITY]; // int -> Book
+    }
+
+    public void add(Book element){ // int -> Book
+        if(size==elements.length){
+            ensureCapacity();
+        }
+        elements[size++] = element;
+    }
+
+    public Book get(int index){ // int -> Book
+        if(index<0 || index>=size){ // index가 0미만, size 이상일경우 에러
+            throw new IndexOutOfBoundsException("index의 범위가 초과"); // 예외처리
+        }
+        return elements[index];
+    }
+
+    public int size(){
+        return size;
+    }
+
+    private void ensureCapacity() {
+        int newCapacity = elements.length*2;
+        elements = Arrays.copyOf(elements, newCapacity);
+    }
+}
+```
+
+:bulb: throw new Exception : 예외를 의도적으로 발생시켜 잘못된 케이스에 대한 주의 및 수정 요청이 가능
+
+```java
+// Main
+import fc.java.model2.Book;
+import fc.java.model2.BookArray;
+public class MyBookArrayTest {
+    public static void main(String[] args) {
+        // 책 3권의 데이터를 배열에 저장하고 출력
+        BookArray list = new BookArray(); // 책 배열 생성, 길이 5
+        list.add(new Book("자바",15000,"한빛","신짱구"));
+        list.add(new Book("C++",17000,"대림","신짱아"));
+        list.add(new Book("파이썬",19000,"교보","신형만"));
+
+        for(int i = 0; i<list.size(); i++){
+            System.out.println(list.get(i));
+        }
+    }
+}
+// 출력결과
+// Book{title='자바', price=15000, company='한빛', author='신짱구'}
+// Book{title='C++', price=17000, company='대림', author='신짱아'}
+// Book{title='파이썬', price=19000, company='교보', author='신형만'}
+```
+
+<br/>
+
+- 배열처럼 동작하는 API 만들기 (Object로 확장성 증가)
+
+```java
+public class A {
+    public void display(){ System.out.println("A클래스"); }
+}
+```
+
+```java
+public class B {
+    public void display(){ System.out.println("B클래스"); }
+}
+```
+
+```java
+public class C {
+    public void display(){ System.out.println("C클래스"); }
+}
+```
+
+```java
+import java.util.Arrays;
+public class ObjectArray {
+    private final int DEFAULT_CAPACITY = 5;
+    private Object[] elements; // 다형성 배열, Book[] -> Object[]
+    private int size = 0;
+
+    public ObjectArray(){
+        // elements = new Object[DEFAULT_CAPACITY]; // Book -> Object
+        this(5); // ObjectArray(5);
+    }
+    
+    public ObjectArray(int capacity){ // 고정배열에서 가변배열로
+        elements = new Object[capacity]; // capacity 크기의 배열생성
+    }
+
+    public void add(Object element){ // 다형성 인수, Book -> Object
+        if(size==elements.length){
+            ensureCapacity();
+        }
+        elements[size++] = element;
+    }
+
+    public Object get(int index){ // Book -> Object
+        if(index<0 || index>=size){
+            throw new IndexOutOfBoundsException("index의 범위가 초과");
+        }
+        return elements[index];
+    }
+
+    public int size(){
+        return size;
+    }
+
+    private void ensureCapacity() {
+        int newCapacity = elements.length*2;
+        elements = Arrays.copyOf(elements, newCapacity);
+    }
+}
+```
+
+```java
+import fc.java.model2.*;
+public class MyObjectArrayTest {
+    public static void main(String[] args) {
+        // A, B, C 객체를 배열에 저장하고 출력 (Movie, Book, Member 등 다양한 객체 저장 가능)
+        ObjectArray list = new ObjectArray(10); // 생성자 override로 길이 10의 배열 생성
+        list.add(new A()); // (Upcasting) Object element = new A();
+        list.add(new B());
+        list.add(new C());
+
+        for(int i = 0; i<list.size(); i++){
+            if(list.get(i) instanceof A){
+                ((A)list.get(i)).display(); // Downcasting, A클래스
+            }else if(list.get(i) instanceof B){
+                ((B)list.get(i)).display(); // Downcasting, B클래스
+            }else{
+                ((C)list.get(i)).display(); // Downcasting, C클래스
+            }
+        }
+    }
+}
+```
+
+<br/>
+
+- 자바에서 제공해주는 ArrayList (직접 만든 ObjectList와 유사한 구조)
+
+ArrayList의 설명서 : https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/ArrayList.html
+
+:bulb: Constructs an empty list with an initial capacity of ten (기본 길이는 10으로 생성)
+
+:bulb: Constructs an empty list with the specified initial capacity (capacity 설정으로 원하는 길이 설정가능)
+
+:bulb: List는 ArrayList의 부모로, Upcasting이 가능
+
+```java
+import fc.java.model2.Book;
+import java.util.*;
+public class ArrayListTest {
+    public static void main(String[] args) {
+        // Book 3권을 배열에 저장하고 출력
+        List list = new ArrayList(1); // Upcasting, 현재 길이 1
+        
+        list.add(new Book("자바", 15000, "한빛", "신짱구"));
+        list.add(new Book("C++", 17000, "대림", "신짱아")); // 배열의 크기를 초과해도 add가 가능, 배열의 길이의 제한 X
+        list.add(new Book("파이썬", 19000, "교보", "신형만")); // 요소의 삽입 및 제거에 따라 길이가 변경
+
+        for(int i = 0; i<list.size(); i++){
+            Book b = (Book)list.get(i); // Object type이기에 Downcasting 필요
+            System.out.println(list.get(i)); // Object -> Book (JVM에서 자동으로 Book의 toString())
+        }
+    }
+}
+```
+
+<br/>
+
+Generic : 어떤 객체를 포함하는지에 대해서 명확한 표현, < Book > 기재 시 더 이상 Object 배열이 아닌 Book 배열만 쓰겠다는 명시 
+
+```java
+import fc.java.model2.Book;
+import java.util.*;
+public class ArrayListBestTest {
+    public static void main(String[] args) {
+        // Book 3권을 배열에 저장하고 출력
+        List<Book> list = new ArrayList<Book>();
+        list.add(new Book("자바", 15000, "한빛", "신짱구"))
+        list.add(new Book("C++", 17000, "대림", "신짱아"));
+        list.add(new Book("파이썬", 19000, "교보", "신형만"));
+        // list.add(new A()); // Book type이 아니기에 에러
+
+        for(int i = 0; i<list.size(); i++){
+            Book b = list.get(i); // Book type이기에 Downcasting이 불필요
+            System.out.println(b);
+        }
+    }
+}
+```
+
+<br/>
+
+---
+
+Quiz.
+
+1. 자바에서 제공해주는 클래스 중 모든 객체를 배열에 저장하여 관리하는 클래스는 무엇인지 쓰시오
+
+   → ArrayList
+
+2. ArrayList가 저장된 자바 패키지 이름을 쓰시오
+
+   → java.util
+
+3. ArrayList에 객체를 저장하는 메서드 이름과 객체를 가져오는 메서드 이름을 쓰시오
+
+   → add, get
+
+4. ArrayList에 저장된 객체의 개수를 구하는 메서드를 쓰시오
+
+   → size
+
+5. ArrayList에 Book 타입의 객체만 저장하려면 어떻게 선언을 해야 하는지 쓰시오
+
+   → ArrayList < Book >
+
+<br/>
+
+> Reference
+>
+> Fastcampus : Signature Backend
