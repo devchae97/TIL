@@ -1,0 +1,179 @@
+# String 클래스
+
+자바에서 문자열은 객체로 취급하며, String 타입으로 객체를 생성하고 처리
+
+<br/>
+
+### 문자열 생성방법
+
+1. new 연산자를 이용한 방식
+
+```java
+String str1 = new String("HelloWorld");
+String str2 = new String("HelloWorld");
+```
+
+:bulb: Stack 메모리에 변수 str1과 str2가 Heap memory에 할당된 각각의 String ("HelloWorld")를 가리킴 (같은 내용이라도 여러 개의 객체)
+
+<br/>
+
+2. 리터럴을 이용한 방식
+
+```java
+String str1 = "HelloWorld";
+String str2 = "HelloWorld";
+```
+
+:bulb: 마찬가지로 변수 str1, str2에 "HelloWorld"가 저장 되는게 아니라, String("HelloWorld")를 가리킴
+
+다만, 리터럴 방식을 이용한다면 Heap memory가 아닌 Literal Pool memory에 생성되며, Literal Pool은 재활용 메모리 공간으로 어떤 문자열이 만들어져 있고 동일한 문자열을 생성할 경우 새로 만들어지지 않고 이미 생성된 문자열을 가리킴 (같은 내용이면 하나의 객체)
+
+```java
+public class HelloWorldString {
+    public static void main(String[] args) {
+        String str1 = new String("HelloWorld"); // Heap
+        String str2 = new String("HelloWorld"); // Heap
+        System.out.println(str1==str2); // false (다른 주소 값)
+        System.out.println(str1.equals(str2)); // true
+
+        String str3 = "HelloWorld"; // Literal Pool
+        String str4 = "HelloWorld"; // Literal Pool
+        System.out.println(str3==str4); // true (동일한 주소 값)
+        System.out.println(str3.equals(str4)); // true
+    }
+}
+// "==" 연산자는 주소 값을 비교하는 연산자, 내용을 비교하고 싶으면 "equals()" 사용
+```
+
+<br/>
+
+### String 클래스에서 제공하는 메서드
+
+- String docs : https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html
+  - charAt(int index) : index의 문자값을 리턴
+  - replaceAll(String regex, String replacement) : regex의 값을 replacement로 대체
+  - length() : 길이를 리턴
+  - toUpperCase() : 모든 문자를 대문자로 변환해 리턴
+  - toLowerCase() : 모든 문자를 소문자로 변환해 리턴
+  - substring(int beginIndex, int endIndex) : beginIndex부터 endIndex 전까지 리턴
+  - intdexof(String str) : str이 처음 나오는 인덱스 리턴
+
+```java
+public class StringManipulation {
+    public static void main(String[] args) {
+        String str = "HelloWorld";
+        //            0123456789
+        System.out.println(str.charAt(1)); // 'e'
+        System.out.println(str.replaceAll("o","x")); // HellxWxrld , 문자열이기에 하나라도 쌍따옴표 사용
+        System.out.println(str.length()); // 10
+        System.out.println(str.toUpperCase()); // HELLOWORLD
+        System.out.println(str.toLowerCase()); // helloworld
+        System.out.println(str.substring(5)); // World , 5부터 끝까지
+        System.out.println(str.substring(5,8)); // Wor , 5부터 8전까지
+        System.out.println(str.indexOf("Wor")); // 5 , 가장 첫번째 인덱스, 문자열이 없으면 -1
+    }
+}
+```
+
+<br/>
+
+### 문자열 비교
+
+- String docs : https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html
+  - equals() : 두 문자열이 같으면 true, 다르면 false를 리턴
+  - compareTo() : 문자열을 사전순으로 비교하며, 같으면 0, 비교 대상 문자열이 기준 문자열보다 작으면 음수를, 크면 양수를 리턴
+
+```java
+public class StringCompare {
+    public static void main(String[] args) {
+        String str1 = "Hello";
+        String str2 = "World";
+
+        if(str1.equals(str2)){
+            System.out.println("str1 = str2");
+        }else{
+            System.out.println("str1 != str2"); // str1 != str2
+        }
+
+        String str3 = "apple";
+        String str4 = "banana";
+        
+        int result = str3.compareTo(str4); // 0, 양수, 음수
+        if(result==0){
+            System.out.println("str3 = str4");
+        }else if(result<0){
+            System.out.println("str3 < str4"); // str3 < str4
+        }else{
+            System.out.println("str3 > str4");
+        }
+    }
+}
+```
+
+<br/>
+
+### 문자열 분리
+
+- String docs : https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html
+  - split() : 입력받은 정규표현식 또는 특정 문자를 기준으로 문자열을 나누어 배열에 저장하여 리턴
+
+:bulb: \s+ : 하나 이상의 공백 문자를 나타내는 표현식
+
+```java
+import java.util.Scanner;
+public class StringSplit {
+    public static void main(String[] args) {
+        String str = "Hello,World,Java";
+        String[] strArray = str.split(",");
+        for(String s : strArray){
+            System.out.println(s.toString()); // Hello	World	Java
+        }
+
+        String str2 = "Hello World Java";
+        String[] strArray2 = str2.split("\\s+");
+        for(String s : strArray2){
+            System.out.println(s.toString()); // Hello 	World	Java
+        }
+
+        Scanner scan = new Scanner(System.in);
+        System.out.print("문자열을 입력 : ");
+        String str3 = scan.nextLine();
+        String[] strArray3 = str3.split(" ");
+        for(String s : strArray3){
+            System.out.println(s.toString());
+        }
+    }
+}
+```
+
+<br/>
+
+---
+
+Quiz.
+
+1. 자바에서 HelloWorld라는 문자열을 생성하는 방법 2가지를 쓰시오
+
+   → String str=new String("HelloWorld"); String str="HelloWorld";
+
+2. 문자열이 같으면 true 다르면 false를 반환하는 문자열 비교 메서드는 무엇인지 쓰시오
+
+   → equals
+
+3. 주어진 문자열에서 일 부분의 문자열을 추출해주는 메서드는 무엇인지 쓰시오
+
+   → substring
+
+4. 특정 문자열의 위치를 찾아서 그 위치의 인덱스를 리턴해주는 메서드는 무엇인지 쓰시오
+
+   → indexOf
+
+5. 문자열에서 특정 구분자를 기준으로 분리해주는 메서드는 무엇인지 쓰시오
+
+   → split
+
+<br/>
+
+> Reference
+>
+> Fastcampus : Backend Signature
