@@ -1,0 +1,156 @@
+# 인터페이스 기반 프로그래밍 (DB)
+
+데이터베이스 측면에서의 인터페이스를 이용한 API 활용 방법
+
+<br/>
+
+인터페이스 기반의 API 설계 -> 상속관계의 설계 (User는 C클래스를 통해서 B클래스의 동작방식을 몰라도 B클래스를 동작시킬 수 있다)
+
+> User - C(부모) - B(자식)
+
+C : C의 코드는 노출시키고 B의 내부코드는 숨기는 C클래스, 인터페이스 역할 (옵저버)
+
+B : C를 재정의(Override)해 실제로 동작되는 B클래스
+
+:bulb: 느슨한 연결(Loose Coupling) : User와 C처럼 둘이 상호작용은 하긴 하지만 서로에 대해 서로 잘 모른다는 것을 의미
+
+```java
+public interface CC { // CC는 노출
+    public void x(); // interface에서는 abstract 생략가능
+    public void y();
+    public void z();
+}
+```
+
+```java
+public class BB implements CC{ // BB는 노출이 되지 않음 (BB.class 파일만 전달)
+    @Override
+    public void x() {
+        System.out.println("X동작 실행");
+    }
+    @Override
+    public void y() {
+        System.out.println("Y동작 실행");
+    }
+    @Override
+    public void z() {
+        System.out.println("Z동작 실행");
+    }
+}
+```
+
+```java
+import fc.java.model2.*;
+public class InterfaceAPI { // CC를 이용하여 BB를 동작시키는 프로그래밍 (인터페이스 기반의 프로그래밍)
+    public static void main(String[] args) {
+        CC c = new BB();
+        c.x(); // X동작 실행, BB의 x()가 동작 : 동적바인딩
+        c.y(); // Y동작 실행
+        c.z(); // Z동작 실행
+    }
+}
+```
+
+<br/>
+
+### DB 연결방식 (가상)
+
+> User - Connection (Interface) - Driver(API)
+
+:bulb: User는 Driver의 동작방식을 몰라도 Connection을 통해 Driver의 사용이 가능
+
+```java
+public interface Connection{
+    void getConnection(String url, String username, String password){
+        // 다른 메서드 생략
+    }
+}
+// JDBC접속URL : DB접속 URL로 벤더들이 제공
+// jdbc:oracle:thin:@localhost:1521:DBNAME
+// jdbcLmysql://localhost:3306/DBNAME
+// jdbc:sqlserver://localhost:1433;DatabaseName=DBNAME
+```
+
+Driver : DB접속에 필요한 동작을 만들어 배포하는 클래스들(API), 각 벤더에 따라 연결방식이 상이 ex > Oracle, MySQL, MSSQL 등
+
+:bulb: Driver implements Connection, getConnection() 메서드를 Override 중
+
+- 동작 방식(가상)
+
+```java
+public interface Connection { // interface는 자바에서 제공
+    // DB 연결 동작
+    public void getConnection(String url, String username, String password);
+}
+```
+
+```java
+public class OracleDriver implements Connection{ // OracleDriver는 Oracle 회사에서 만들어 제공
+    @Override
+    public void getConnection(String url, String username, String password) {
+        System.out.println("url, username, password 정보를 이용해 oracle 접속 시도"); // DB연결 동작
+    }
+}
+```
+
+<br/>
+
+### JDBC 개념
+
+- JDBC(Java DataBase Connectivity) : 자바에서 데이터베이스와의 연결을 위한 API
+  - Java에서 인터페이스(공통의 접근방법)을 제공
+  - 벤더(DB회사)들은 인터페이스를 구현해 Drvier 클래스를 만들어 배포
+  - 벤더마다 배포된 드라이버 이름(jar)은 상이 (Oracle : ojdbc6.jar, MySQL : mysql-connector-java.jar, MSSQL : sqljdbc.jar)
+  - 벤더들이 제공하는 데이터베이스 접속 URL과 URL 형식이 필요
+
+:bulb: java.sql.* 내부엔 Connection(연결), Statement(SQL전송), ResultSet(결과값 저장) 등의 기능이 존재
+
+```java
+import fc.java.model2.*;
+public class DataBaseConnection {
+    public static void main(String[] args) {
+        // DB 인터페이스의 동작 방식 (가상)
+        Connection conn = new OracleDriver();
+        conn.getConnection("jdbc:oracle:thin:@localhost:1521:DBNAME","system","manager");
+        
+        conn = new MySQLDriver();
+        conn.getConnection("jdbc:mysql://localhost:3306/DBNAME","root","1234");
+        
+        conn = new MSSQLDriver();
+        conn.getConnection("jdbc:sqlserver://localhost:1433;DatabaseName=mem","sa","1234");
+        
+    }
+}
+```
+
+<br/>
+
+---
+
+Quiz.
+
+1. 자바에서 데이터베이스에 접속하기 위해서 데이터베이스 회사에서 제공하는 API를 무엇이라고 하는지 쓰시오
+
+   → Driver
+
+2. 데이터베이스에 접속하기 위해서 알아야 할 3가지 정보는 무엇인지 쓰시오
+
+   → url, username, password
+
+3. 자바에서 데이터베이스 프로그래밍을 하기 위해서 제공된 API들이 들어있는 패키지 이름을 쓰시오
+
+   → java.sql
+
+4. JDBC의 영어 전체이름을 쓰시오
+
+   → Java DataBase Connectivity
+
+5. JDBC란 무엇인지 쓰시오
+
+   → 자바에서 데이터베이스와의 연결을 위한 API
+
+<br/>
+
+> Reference
+>
+> Fastcampus : Signature Backend
