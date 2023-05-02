@@ -192,7 +192,7 @@ Quiz.
 
 1. Random 클래스를 이용하여 난수를 1~10까지 발생시키는 코드를 쓰시오
 
-   → random.nextInt(45);
+   → int num = random.nextInt(10)+1;
 
 2. 프로그래밍 언어나 플랫폼에 상관없이 데이터를 교환할 수 있도록 설계된 데이터 형식을 무엇이라고 하는지 쓰시오
 
@@ -200,15 +200,15 @@ Quiz.
 
 3. 이름이 홍길동이고 나이가 30인 데이터를 JSON 형식으로 쓰시오
 
-   → {"name":"John","age":30}
+   → {"name":"홍길동","age":30}
 
 4. JSON 형식의 문자열을 자바 객체로 변환해주는 Gson API의 메서드를 쓰시오
 
-   → fromJson();
+   → fromJson()
 
 5. 객체를 JSON 형식으로 변환해주는ㄴ Gson API의 메서드를 쓰시오
 
-   → toJson();
+   → toJson()
 
 <br/>
 
