@@ -1,0 +1,390 @@
+# Collection Framework API
+
+### Wrapper 클래스
+
+- Wrapper(포장) 클래스 : 기본 데이터 타입을 객체로 다룰 수 있도록 만들어진 클래스
+  - wrapper 클래스를 사용하면 자동으로 박싱(boxing)과 언박싱(unboxing)이 이루어진다
+
+| 기본 데이터 타입 | Wrapper 클래스 |
+| ---------------- | -------------- |
+| byte             | Byte           |
+| short            | Short          |
+| int              | Integer        |
+| long             | Long           |
+| float            | Float          |
+| double           | Double         |
+| char             | Character      |
+| boolean          | Boolean        |
+
+| 작업          | 설명                                                         |
+| ------------- | ------------------------------------------------------------ |
+| Boxing        | 기본 데이터 타입을 해당하는 wrapper 클래스 객체로 변환하는 것 |
+| Unboxing      | wrapper 클래스 객체를 해당하는 기본 데이터 타입으로 변환하는 것 |
+| Auto-boxing   | 기본 데이터 타입의 값을 해당하는 wrapper 클래스 객체로 자동 변환하는 것 |
+| Auto-unboxing | wrapper 클래스 객체를 해당하는 기본 데이터 타입으로 자동 변환하는 것 |
+
+```java
+// Boxing 예시
+int i = 10;
+Integer intObj = Integer.valueOf(i);
+
+// Unboxing 예시
+Integer intObj = new Integer(10);
+int i = intObj.intValue();
+
+// Auto-boxing 예시
+int i = 10;
+Integer intObj = i;
+
+// Auto-unboxing 예시
+Integer intObj = new Integer(10);
+int i = intObj;
+```
+
+```java
+public class WrapperTest {
+    public static void main(String[] args) {
+        int a = 10; // 기본자료형, 정수
+        Integer aa = new Integer(10); // 사용자정의 자료형, Boxing(Unnecessary)
+        System.out.println(aa.intValue()); // Unboxing(Integer -> int) // 10
+        
+        Integer bb = 10; // Auto-boxing (new Integer(10))
+        int b = bb; // Auto-Unboxing
+        
+
+        float f = 10.5f; // 기본자료형, 실수
+        Float ff = 45.6f; // new Float(45.6f); // Auto-boxing
+        float fff = ff; // ff.floatValue() -> Auto-unboxing
+        System.out.println(ff.floatValue()); // 45.6
+        System.out.println(fff); // 45.6
+    }
+}
+```
+
+<br/>
+
+### 숫자와 문자열의 상호 변환
+
+- 숫자형 문자열을 정수로 변환
+
+```java
+// 자바에서 숫자형 문자열을 정수로 변환하려면 Integer.parseInt() 메서드를 사용
+String str = "123";
+int num  = Integer.parseInt(str); // Static 메서드, 바로 접근 가능
+```
+
+- 정수를 문자열로 변환
+
+```java
+// 정수를 문자열로 변환하려면 String.valueOf() 메서드나,
+// 정수를 문자열로 바꾸는 더 간단한 방법 : ""+정수
+int num = 123;
+String str1 = String.valueOf(num);
+String str2 = "" + num; // 결합
+```
+
+<br/>
+
+```java
+public class IntegerStringTest {
+    public static void main(String[] args) {
+        String str1 = "123";
+        String str2 = "123";
+        System.out.println(str1+str2); // 123123 : +가 더하기가 아닌 결합
+
+        // str1 + str2 = 246의 결과를 원한다면,
+        int num = Integer.parseInt(str1) + Integer.parseInt(str2);
+        System.out.println(num); // 246
+
+        int su1 = 123;
+        int su2 = 123;
+        // su1 + su2 = 123123의 결과를 원한다면,
+        System.out.println(su1+su2); // 245 : +가 덧셈
+        String str = String.valueOf(su1) + String.valueOf(su2);
+        System.out.println(str); // 123123
+
+        String s = su1 + "" + su2;
+        System.out.println(s); // 123123
+    }
+}
+```
+
+<br/>
+
+### Collection Framework API
+
+- Java Collection Framework API : 자바에서 제공하는 데이터 구조인 컬렉션을 표현하는 인터페이스와 클래스의 모음
+
+:bulb: 개발자가 데이터를 저장하고 관리하는 다양한 방법을 제공
+
+| 인터페이스/클래스 | 설명                                                   | 분류     |
+| ----------------- | ------------------------------------------------------ | -------- |
+| **List**          | **순서가 있는 객체의 모음을 다루는 인터페이스**        | **List** |
+| ArrayList         | List 인터페이스를 구현하는 클래스                      | List     |
+| LinkedList        | List 인터페이스를 구현하는 클래스                      | List     |
+| **Set**           | **중복된 원소가 없는 객체의 모음을 다루는 인터페이스** | **Set**  |
+| HashSet           | Set 인터페이스를 구현하는 클래스                       | Set      |
+| TreeSet           | SortedSet 인터페이스를 구현하는 클래스                 | Set      |
+| **Map**           | **키-값 쌍의 객체를 다루는 인터페이스**                | **Map**  |
+| HashMap           | Map 인터페이스를 구현하는 클래스                       | Map      |
+| TreeMap           | SortedMap 인터페이스를 구현하는 클래스                 | Map      |
+
+<br/>
+
+Collection 클래스와 관련된 API에는 wrapper클래스들이 나올 수 있다.
+
+```java
+import java.util.ArrayList;
+public class CollectionBasic {
+    public static void main(String[] args) {
+        // ArrayList에 10, 20, 30, 40, 50 5개의 정수를 저장하고 출력하시오
+        
+        // ArrayList -> Object[]에는 int 넣기가 불가했음
+        // Integer로 boxing하여 사용이 필요했으나, Auto-boxing의 지원으로 인해
+        // 현재는 ArrayList -> Object[] <--(Auto-boxing:Integer)-- int 형태 가능
+        
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        // list.add(new Integer(10));
+        list.add(10); // Auto-boxing
+        list.add(20);
+        list.add(30);
+        list.add(40);
+        list.add(50);
+
+        //  int      : Integer // Auto-unboxing
+        for(int data : list){
+            System.out.println(data);
+        }
+    }
+}
+```
+
+:bulb: 오토박싱과 오토언박싱은 JDK 1.5부터 지원
+
+<br/>
+
+### List API
+
+List API : 순서가 있고 중복이 가능
+
+```java
+import java.util.ArrayList;
+public class ListExample {
+    public static void main(String[] args) {
+        ArrayList<String> list = new ArrayList<>(); // String[], 뒤의 <>내부는 생략 가능
+        list.add("apple"); // new String("apple")
+        list.add("banana");
+        list.add("cherry");
+        list.add("banana"); // 중복데이터
+
+        System.out.println(list.get(0)); // apple
+        System.out.println(list.get(1)); // banana
+        System.out.println(list.get(2)); // cherry
+        System.out.println(list.get(list.size()-1)); // banana
+
+        list.remove(0); // apple 삭제, 인덱스 하나씩 앞으로
+        
+        list.set(0,"orange"); // 0번 banana를 orange로 변경
+
+        for(String str : list){
+            System.out.println(str); // orange cherry banana
+        }
+    }
+}
+```
+
+Movie []
+
+```java
+import fc.java.model2.Movie; // Movie DTO는 Title, Director, Year, Country를 포함
+import java.util.ArrayList;
+public class MovieListExample {
+    public static void main(String[] args) {
+        ArrayList<Movie> list = new ArrayList<>(); // Movie[]
+        list.add(new Movie("괴물","봉준호","2006","한국"));
+        list.add(new Movie("기생충","봉준호","2019","한국"));
+        list.add(new Movie("완벽한 타인","이재규","2018","한국"));
+        for(Movie m : list){
+            System.out.println(m); // m.toString()
+        }
+        
+        String searchTitle = "기생충";
+        for(Movie m : list){
+            if(m.getTitle().equals(searchTitle)){
+                System.out.println(m); // Title이 "기생충"인 list의 Movie m toString()
+                break;
+            }
+        }
+    }
+}
+```
+
+<br/>
+
+### Set API
+
+Set API : 순서가 없고 중복이 불가능
+
+```java
+import java.util.HashSet;
+import java.util.Set;
+public class HashSetExample {
+    public static void main(String[] args) {
+        Set<String> set = new HashSet<>();
+
+        set.add("Apple");
+        set.add("Banana");
+        set.add("Cherry");
+        set.add("Apple"); // Set에는 중복이 불가, 값이 add 되지 않음
+
+        System.out.println(set.size()); // 3
+
+        for(String element : set){
+            System.out.println(element); // Apple Banana Cherry
+        }
+
+        set.remove("Banana"); // 삭제
+
+        for(String element : set){
+            System.out.println(element); // Apple Cherry
+        }
+
+        boolean contains = set.contains("Cherry"); // 포함되어있는지 여부
+        System.out.println("Set contains Cherry? " + contains); // true
+
+        set.clear(); // set 비우기
+
+        boolean empty = set.isEmpty(); // set이 비어있는지 여부
+        System.out.println("Set is empty? " + empty); // true
+    }
+}
+```
+
+중복되지 않은 숫자 구하기
+
+```java
+import java.util.HashSet;
+import java.util.Set;
+public class UniqueNumbers {
+    public static void main(String[] args) {
+        int[] nums = {1,2,3,4,5,2,4,6,7,1,3};
+
+        Set<Integer> uniqueNums = new HashSet<>();
+        for(int number : nums){
+            uniqueNums.add(number); // 중복값은 add 되지 않음
+        }
+
+        System.out.println("Unique numbers....");
+        for(int number : uniqueNums){
+            System.out.println(number); // 1 2 3 4 5 6 7
+        }
+    }
+}
+```
+
+<br/>
+
+### Map API
+
+Map API : Key-Value로 데이터를 관리
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+public class MapExample {
+    public static void main(String[] args) {
+        Map<String, Integer> stdScores = new HashMap<>();
+        stdScores.put("Kim", 95);
+        stdScores.put("Lee", 85);
+        stdScores.put("Park", 90);
+        stdScores.put("Choi", 80);
+
+        System.out.println("Kim's score : " + stdScores.get("Kim")); // 해당 Key의 Value
+        System.out.println("Lee's score : " + stdScores.get("Lee")); // Lee's score : 85
+
+        stdScores.put("Park", 92); // 수정
+        System.out.println("Park's score : " + stdScores.get("Park")); // Park's score : 92
+
+        stdScores.remove("Choi"); // 삭제
+        System.out.println("Choi's score removeal : " + stdScores.get("Choi")); // Choi's score removal : null
+
+        for(Map.Entry<String, Integer> entry : stdScores.entrySet()){ // entrySet() : key와 value의 값
+            System.out.println(entry.getKey() + "'s score : " + entry.getValue());
+            // Lee's score : 85
+            // Kim's score : 95
+            // Park's score : 92
+        }
+    }
+```
+
+주어진 문자열에서 문자 하나씩 몇 번 나오는지 출력
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+public class CharacterCount {
+    public static void main(String[] args) {
+        String str = "Hello, World!";
+        char[] strArray = str.toCharArray(); // {'H','e','l','l','o',...}
+        
+        Map<Character, Integer> charCountMap = new HashMap<>();
+        for(char c : strArray){
+            if(charCountMap.containsKey(c)){
+                charCountMap.put(c,charCountMap.get(c)+1);
+            }else{
+                charCountMap.put(c,1);
+            }
+        }
+        System.out.println("Character Counts");
+        for(char c : charCountMap.keySet()){
+            System.out.println(c + ":" + charCountMap.get(c));
+        }
+    }
+}
+
+//Character Counts
+//  :1
+// !:1
+// r:1
+// d:1
+// e:1
+// W:1
+// H:1
+// l:3
+// ,:1
+// o:2
+```
+
+:bulb: Key 기반 데이터 저장 구조이기에 자연스레 저장 순서는 의미를 갖지 않는다
+
+<br/>
+
+---
+
+Quiz.
+
+1. 자바에서 순서가 있는 객체의 모음을 다루는 대표적인 인터페이스를 쓰시오
+
+   → List
+
+2. 자바에서 중복된 원소가 없는 객체의 모음을 다루는 인터페이스를 쓰시오
+
+   → Set
+
+3. 자바에서 키-값 쌍의 객체를 다루는 인터페이스를 쓰시오
+
+   → Map
+
+4. 기본자료형을 객체자료형으로 사용하기 위해서 자바에서 만들어 놓은 클래스를 무엇이라고 하는지 쓰시오
+
+   → Wrapper 클래스
+
+5. 문자열 "100"을 정수 100으로 바꾸는 방법을 쓰시오
+
+   → Integer.parseInt("100");
+
+<br/>
+
+> Reference
+>
+> Fastcampus : Backend Signature
