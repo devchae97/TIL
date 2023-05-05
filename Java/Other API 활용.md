@@ -202,7 +202,7 @@ Gson과 동일하게 https://mvnrepository.com/ 에 접속하여 다운 및 연�
 
 Jsoup API 활용을 위한 웹사이트 크롤링 실습
 
-![Java 6](D:\GIT\TIL\img\Java 6.png)
+![Java 6](https://github.com/devchae97/TIL/blob/master/img/Java%206.png?raw=true)
 
 ```java
 import org.jsoup.Jsoup;
