@@ -1,0 +1,420 @@
+# Other API 활용
+
+<br/>
+
+### JSON, XML Data Format
+
+- JSON (JavaScript Object Notation) : 경량의 데이터 교환 형식으로 텍스트 기반의 구조화된 데이터 표현
+  - JSON 객체 : 중괄호로 묶인 키-값 쌍의 집합으로 key는 문자열, value는 JSON 데이터 형식 중 하나로 키와 값은 콜론(:)으로 구분되며 여러 개의 키-값 쌍은 쉼표(,)로 구분
+  - JSON 배열 : 대괄호로 묶인 값들의 순서 있는 리스트로 배열의 요소는 JSON 데이터 형식 중 하나가 될 수 있으며, 여러 개의 요소는 쉼표(,)로 구분
+
+:bulb: 가독성이 좋고 다양한 프로그래밍 언어와의 호환성으로 널리 사용
+
+<br/>
+
+JSON 데이터 형식
+
+| value 데이터 타입 | 설명                             | 예시                            |
+| ----------------- | -------------------------------- | ------------------------------- |
+| 문자열 (String)   | 큰 따옴표로 둘러싸인 일련의 문자 | "Hello"                         |
+| 숫자 (Number)     | 정수 또는 부동소수점             | 42, 3.14                        |
+| 불리언 (Boolean)  | 참 또는 거짓 값                  | true, false                     |
+| 객체 (Object)     | 중괄호로 묶인 키-값 쌍의 집합    | { "name":"신짱구", "age":10 }   |
+| 배열 (Array)      | 대괄호로 묶인 값의 순서있는 목록 | [ "apple", "banana", "cherry" ] |
+| 널 (Null)         | 값이 없음을 나타내는 특수한 값   | null                            |
+
+<br/>
+
+회원정보
+
+```json
+{
+    "name" : "신짱구",
+    "age" : 10,
+    "email" : "jjanggu@naver.com",
+    "isStudent" : true,
+    "address" : {
+        "city" : "서울",
+        "country" : "대한민국"
+    },
+    "hobbies" : ["독서", "여행", "운동"]
+}
+```
+
+:bulb: address의 value 안에 객체, hobbies value에는 배열 등 JSON 데이터 형식이 될 수 있다
+
+<br/>
+
+- XML (eXtensible Markup Language) : 데이터를 저장하고 전송하기 위한 마크업 언어로 트리 구조로 이루어져 있으며, 
+
+요소(element), 속성(attribute), 텍스트(text), 주석(comment) 등으로 구성된다
+
+<br/>
+
+회원정보
+
+```xml
+<member>
+    <name>신짱구</name>
+    <age>10</age>
+    <email>jjanggu@naver.com</email>
+    <address>
+        <city>서울</city>
+        <country>대한민국</country>
+    </address>
+</member>
+```
+
+```xml
+<!-- This is a member element-->
+<member id = "1">
+	<name>신짱구</name>
+    <age>10</age>
+    <email>jjanggu@naver.com</email>
+    <address city="서울" country="대한민국"/>
+</member>
+```
+
+:bulb: < member > 처럼 하나의 구성 요소를 element, id처럼 요소에 대한 추가적인 정보를 제공하는 attribute, 신짱구는 text
+
+<br/>
+
+- JSON과 XML 모두 구조화된 데이터를 표현하는데 효과적이지만, 가독성과 데이터 크기의 차이가 존재
+  - JSON은 간결한 구조로 가독성이 높고 데이터 크기가 작음
+  - XML은 태그를 사용하여 가독성이 상대적으로 낮고 데이터 크기가 큼
+
+<br/>
+
+### Gson API 활용
+
+:bulb: 사용하게 될 클래스들(APIs)에 Gson API 다운 방법 기재
+
+```java
+import com.google.gson.Gson;
+import fc.java.model3.Member; // name, age, email
+public class GsontoJson {
+    public static void main(String[] args) {
+        Member mvo = new Member("신짱구",10,"jjanggu@naver.com");
+        // JSON -> { "name" : "신짱구", "age" : 10, "email" : "jjanggu@naver.com"}
+        // 객체 생성
+        Gson gson = new Gson();
+        // Object(Member) -> JSON
+        String json = gson.toJson(mvo);
+        System.out.println("json = " + json); // {"name":"신짱구","age":10,"email":"jjanggu@naver.com"}
+    }
+}
+```
+
+```java
+import com.google.gson.Gson;
+import fc.java.model3.Member;
+public class GsonfromJson {
+    public static void main(String[] args) {
+        String json="{\"name\":\"신짱구\",\"age\":10,\"email\":\"jjanggu@naver.com\"}";
+        // JSON -> Object(Member)
+        Gson gson = new Gson();
+        Member mvo = gson.fromJson(json, Member.class);
+        System.out.println("mvo = " + mvo); // mvo = Member{name='신짱구', age=10, email='jjanggu@naver.com'}
+    }
+}
+```
+
+<br/>
+
+중첩된 JSON 구조 핸들링
+
+```java
+public class Person {
+    private String name;
+    private int age;
+    private String email;
+    private Address address;
+    // 기본생성자, 생성자오버로딩, getter&setter, toString 추가
+}
+```
+
+```java
+public class Address {
+    private String city;
+    private String country;
+    // 기본생성자, 생성자오버로딩, getter&setter, toString 추가
+}
+```
+
+```java
+import com.google.gson.Gson;
+import fc.java.model3.Address;
+import fc.java.model3.Person;
+public class GsonMemAddtoJson {
+    public static void main(String[] args) {
+        Address address = new Address("서울","대한민국");
+        Person member = new Person("신짱구", 10, "jjanggu@naver.com", address);
+
+        // Person -> JSON
+        Gson gson  =new Gson();
+        String json = gson.toJson(member);
+        System.out.println("json = " + json);
+        // json = {"name":"신짱구","age":10,"email":"jjanggu@naver.com","address":{"city":"서울","country":"대한민국"}}
+    }
+```
+
+```java
+import com.google.gson.Gson;
+import fc.java.model3.Person;
+
+public class GsonMemAddfromJson {
+    public static void main(String[] args) {
+        String json = "{\"name\":\"신짱구\",\"age\":10,\"email\":\"jjanggu@naver.com\"," +
+                "\"address\":{\"city\":\"서울\",\"country\":\"대한민국\"}}";
+
+        // JSON -> Person
+        Gson gson = new Gson();
+        Person member = gson.fromJson(json, Person.class);
+        System.out.println("member = " + member);
+        // member = Person{name='신짱구', age=10, email='jjanggu@naver.com', address=Address{city='서울', country='대한민국'}}
+    }
+```
+
+<br/>
+
+### Jsoup API 활용
+
+Jsoup API : HTML 문서를 읽고 파싱하여 웹 크롤링, 웹 스크레이핑, 데이터 추출 등의 작업을 수행할 수 있는 자바 라이브러리
+
+Gson과 동일하게 https://mvnrepository.com/ 에 접속하여 다운 및 연결
+
+:bulb: parsing : 분해와 분석 후 목적에 맞춰 구조를 결정
+
+| 메서드                      | 설명                                                         |
+| --------------------------- | ------------------------------------------------------------ |
+| Jsoup.connect(url)          | 주어진 URL에 연결을 시도. 이 메서드는 Connection 객체를 반환하며 이 객체를 사용하여 GET, POST 요청을 설정 가능 |
+| document.get()              | Connection 객체를 사용하여 웹페이지의 내용을 가져오는 메서드, Document 객체를 반환 |
+| Jsoup.parse(html)           | 주어진 HTML 문자열을 파싱하여 Document 객체를 생성           |
+| document.getElementById(id) | 주어진 ID에 해당하는 요소를 찾아서 Element 객체로 반환       |
+| document.select(selector)   | 주어진 CSS 선택자와 일치하는 모든 요소를 찾아서 Elements 객체 (복수의 Elements를 포함하는 클래스)로 반환 |
+| element.text()              | 주어진 요소의 텍스트 내용 가져오기                           |
+| element.attr(attribute)     | 주어진 요소의 속성 값 가져오기                               |
+| element.                    | html(), outerHtml(), tagName(), parent(), children(), nextElementSibling(), previousElementSibling(), addClass(className), removeClass(className), hasClas(className), attr(attribute, value), append(html), prepend(html), remove() |
+
+:bulb: 공식문서는 https://jsoup.org/apidocs
+
+<br/>
+
+Jsoup API 활용을 위한 웹사이트 크롤링 실습
+
+![Java 6](D:\GIT\TIL\img\Java 6.png)
+
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+public class JsoupExample {
+    public static void main(String[] args) {
+        String url = "https://sum.su.or.kr:8888/bible/today"; // 접속할 웹페이지의 URL
+        
+        String urlDay = "https://sum.su.or.kr:8888/bible/today?base_de=2023-03-20";
+        // <input name = "base_de" type = "hidden" value = "2023-05-05"> 태그를 보면 base_de에 날짜를 설정이 가능
+
+        try { // 예외처리 (잘못된 URL이 들어오면 catch 부분으로 전달)
+            Document document = Jsoup.connect(url).get(); // urlDay를 넣어 원하는 날짜의 데이터를 추출 가능
+            // URL에 연결을 GET방식으로 시도
+
+            Element bibleText = document.getElementById("bible_text");
+         	// 주어진 ID에 해당하는 요소를 Element로 반환
+            Element bibleinfoBox = document.getElementById("bibleinfo_box");
+            // 주어진 ID에 해당하는 요소를 Element로 반환
+
+            System.out.println("bibleText = " + bibleText.text());
+            // 주어진 요소의 텍스트값 가져오기
+            // bibleText = 발람의 첫 예언
+            System.out.println("bibleinfoBox = " + bibleinfoBox.text());
+            // bibleinfoBox = 본문 : 민수기(Numbers) 22:36 - 23:12 찬송가 305장
+
+            Elements num = document.select(".num");
+            // 주어진 CSS 선택자와 일치하는 모든 요소를 찾아서 Elements 객체 (복수의 Elements를 포함하는 클래스)로 반환
+            Elements info = document.select(".info");
+
+            for(int i = 0; i < num.size(); i++){
+                System.out.println(num.get(i).text() + ":" + info.get(i).text());
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+}
+
+// 출력결과
+//
+// bibleText = 부활 논쟁
+// bibleinfoBox = 본문 : 마태복음(Matthew) 22:23 - 22:33 찬송가 170장
+// 23:부활이 없다 하는 사두개인들이 그 날 예수께 와서 물어 이르되
+// 24:선생님이여 모세가 일렀으되 사람이 만일 자식이 없이 죽으면 그 동생이 그 아내에게 장가 들어 형을 위하여 상속자를 세울지니라 하였나이다
+// 25:우리 중에 칠 형제가 있었는데 맏이가 장가 들었다가 죽어 상속자가 없으므로 그 아내를 그 동생에게 물려 주고
+// ...
+```
+
+<br/>
+
+### URLConnection 네트워킹
+
+하위클래스 HttpURLConnection은 HTTP 프로토콜을 사용하여 특정 웹 서버와 통신하기 위한 클래스이며,
+
+HttpURLConnection은 HTTP 메서드(GET, POST, PUT, DELETE 등)을 지원하며, HTTP 요청과 응답을 처리할 수 있는 메서드를 제공
+
+<br/>
+
+>  HttpURLConnection을 사용해 웹 서버에서 정보를 가져오는 절차
+>
+> 1. URL 생성 : 웹 리소스에 대한 URL을 생성
+>
+> 2. HttpURLConnection 초기화 : URL 객체의 openConnection() 메서드를 호출해 HttpURLConnection 객체를 얻기
+>
+> 3. HTTP 메서드 설정 (예 : GET) : HttpURLConnection 객체의 setRequestMethod() 메서드를 사용해 원하는 메서드를 설정
+>
+> 4. (선택사항) 요청 헤더 설정  : 필요한 경우, setRequestProperty() 메서드를 사용해 요청 헤더를 설정
+>
+> 5. (선택사항) 요청 본문 작성 : POST, PUT과 같은 메서드를 사용 시, 출력 스트림을 사용해 요청 본문을 작성
+>
+> 6. 응답 코드 확인 : getResponseCode() 메서드를 호출해 서버에서 반환한 HTTP 응답 코드를 확인
+>
+> 7. (선택사항) 응답 헤더 읽기 : 필요한 경우, getHeaderField() 또는 관련 메서드를 사용해 응답 헤더를 읽기
+>
+> 8. 응답 본문 읽기 : InputStream을 사용해 응답 본문을 읽고 처리
+>
+> 9. 연결 종료 : 연결을 끊고 리소스를 해제
+
+<br/>
+
+- Open API 활용 날씨 정보를 가져오기
+
+https://openweathermap.org/  가입 후 API키 발급
+
+```java
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class WeatherExample {
+    public static void main(String[] args) {
+        String apiKey = "발급받은 API키 입력";
+        String city = "Seoul";
+        String urlString = "https://api.openweathermap.org/data/2.5/weather?q=" + 
+            city + "&appid=" + apiKey + "&units=metric";
+        // openweathermap.org/ 에서 확인 가능, metric는 °C
+        
+        try{ // 예외처리
+            
+            // 1. URL 생성
+            URL url = new URL(urlString);
+            
+            // 2. HttpURLConnection 초기화
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); 
+            
+            // 3. HTTP 메서드 설정 (GET)
+            connection.setRequestMethod("GET");
+            
+            // 4. 요청 헤더 설정 : 서버 Response Data를 JSON 형식의 타입으로 요청
+            connection.setRequestProperty("Accept", "application/json");
+
+            // 6. 응답 코드 확인 : 정상적인 응답은 200
+            int responseCode = connection.getResponseCode();
+            
+            if(responseCode == 200){ // 정상적이라면,
+                
+                // 8. 응답 본문 읽기
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                // 정보를 읽어들일 InputStream을 생성, 스트림은 byte 단위로 건너오기에 깨지지 않도록 InputStreamReader
+                // BufferedReader는 데이터를 일정 buffer에 모아서 처리하기 위해 사용
+                // 기본적인 스트림(입력과 출력의 스트림)의 연결
+
+                String inputLine; // 본문이 라인 단위로 넘어오기에 사용
+                StringBuffer content = new StringBuffer();
+                // 라인단위로 넘어오는 데이터를 계속 붙이기 위해 StringBuffer 사용
+                
+                while((inputLine=in.readLine())!=null){ // 더 이상 읽을게 없을 때 까지
+                    content.append(inputLine); // StringBuffer에 계속 라인을 추가
+                }
+                in.close();
+                
+                System.out.println("content.toString() = " + content.toString()); // 넘어온 데이터의 확인
+                
+                // content.toString() = {"coord":{"lon":126.9778,"lat":37.5683},
+                // "weather":[{"id":701,"main":"Mist","description":"mist","icon":"50n"}],
+                // "base":"stations",
+                // "main":{"temp":17.71,"feels_like":18.07,"temp_min":15.69,
+                // "temp_max":18.78,
+                // "pressure":1002,"humidity":97},
+                // "visibility":3000,
+                // "wind":{"speed":1.54,"deg":330},
+                // "clouds":{"all":100},
+                // "dt":1683290959,
+                // "sys":{"type":1,"id":8105,"country":"KR","sunrise":1683232387,"sunset":1683282268},
+                // "timezone":32400,
+                // "id":1835848,
+                // "name":"Seoul",
+                // "cod":200}
+                
+                JsonObject weatherData = JsonParser.parseString(content.toString()).getAsJsonObject();
+                // Json문자열을 parsing하고 Json객체를 리턴
+                
+                JsonObject mainData = weatherData.getAsJsonObject("main");
+                // getAsJsonObject() 원하는 타입을 이용해 값을 받아오기
+                
+                double temp = mainData.get("temp").getAsDouble();
+
+                // 서울의 온도 출력
+                System.out.println("Seoul's temperature : " + temp + "°C");
+                // Seoul's temperature : 17.71°C
+			
+                // 9. 연결 종료
+                connection.disconnect();
+                
+            }else{ // 비정상적이라면
+                // 오류처리 ~~
+            }
+
+        }catch(Exception e){
+            e.printStackTrace(); // 에러메세지 출력
+        }
+    }
+}
+```
+
+<br/>
+
+---
+
+Quiz.
+
+1. 경량의 데이터 교환 형식으로, 텍스트 기반의 구조화된 데이터를 표현하고 가독성이 좋고, 다양한 프로그래밍 언어와 호환되는 데이터 형식은 무엇인지 쓰시오
+
+   → JSON
+
+2. 데이터를 저장하고 전송하기 위한 마크업 언어이며 트리 구조로 이루어져 있고 요소, 속성, 텍스트, 주석 등으로 구성된 데이터 형식은 무엇인지 쓰시오
+
+   → XML
+
+3. 이름과 나이로 이루어진 회원정보를 JSON 형식으로 표현하시오 (ex : 홍길동, 30)
+
+   → {"name" : "홍길동", "age" : 30}
+
+4. 이름과 나이로 이루어진 회원정보를 XML 형식으로 표현하시오 (ex : 홍길동, 30)
+
+   → < member >
+
+   ​	 	< name >홍길동</ name >
+
+   ​	 	< age >30</ age >
+
+   ​	 </ member >
+
+<br/>
+
+> Reference
+>
+> Fastcampus : Signature Backend
