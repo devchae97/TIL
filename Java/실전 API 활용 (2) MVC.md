@@ -2,7 +2,7 @@
 
 자바 미니 프로젝트 : MVC (Model - View - Controller) 기반 애완동물 진료관리 애플리케이션 개발
 
-
+![Java 7-1](https://github.com/devchae97/TIL/blob/master/img/Java%207-1.png?raw=true)
 
 Model : 데이터와 비즈니스 로직 관리
 
