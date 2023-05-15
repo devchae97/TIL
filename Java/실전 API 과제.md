@@ -54,6 +54,46 @@
 
 <br/>
 
+### 나만의 웹 크롤러 만들기
+
+<br/>
+
+##### 요구사항
+
+- 주어진 웹사이트 (https://ncov.kdca.go.kr/bdBoardList_Real.do?brdId=1&brdGubun=13&ncvContSeq=&contSeq=&board_id=&gubun=) 에서 일일 코로나 바이러스 감염 현황을 크롤링 하는 프로그램
+  1. 크롤링한 데이터를 Covide 클래스 객체로 저장
+  2. CovidStatus 객체를 사용해 콘솔에 시도별 일일 코로나 발생 현황을 출력, 출력 형식은 시도, 합계, 국내발생, 해외유입, 확진환자, 사망자, 발생률이 포함
+  3. 크롤링한 데이터를 엑셀 파일로 저장, 엑셀 파일 이름은 covid_status_< 날짜 > _ < 시간 >.Xlsx 형식
+  4. 크롤링한 데이터를 PDF 파일로 저장, PDF 파일 이름은 covid_status_< 날짜 > _ < 시간 >.pdf 형식
+
+:bulb: 내역이 없는 - 부분은 0으로 대체
+
+<br/>
+
+##### 클래스 설계
+
+1. CovidScraper (메인) : 웹 크롤링 및 결과 출력 기능을 포함하는 클래스
+2. CovidStatus : 코로나 현황 데이터를 저장하는 클래스
+3. ExcelExporter : 엑셀 파일로 데이터를 저장하는 클래스
+4. PDFExporter : PDF 파일로 데이터를 저장하는 클래스
+5. 작성한 프로그램으로 생성한 샘플 엑셀과 PDF 파일
+
+<br/>
+
+#####  체크리스트
+
+1. 웹 크롤링을 위한 Jsoup 라이브러리 사용법
+2. 클래스 설계방법
+3. 엑셀 파일 생성 및 저장을 위한 Apache POI 라이브러리 사용법
+4. PDF 파일 생성 및 저장을 위한 iText 라이브러리 사용법
+5. 프로젝트 관리를 위한 Maven 또는 Gradle 사용법 (선택)
+
+<br/>
+
+> Reference
+>
+> Fastcampus : Signature Backend
+
 > Reference
 >
 > Fastcampus : Signature Backend
